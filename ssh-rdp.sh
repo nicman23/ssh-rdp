@@ -194,7 +194,6 @@ finish() {
   #kill multiplexing ssh
   ssh -O exit -o ControlPath="$SSH_CONTROL_PATH" $RHOST 2>/dev/null
   kill $(list_descendants $$) &>/dev/null
-
   rm $NESCRIPT &>/dev/null
   rm $NE_CMD_SOCK&>/dev/null
 }
@@ -528,26 +527,26 @@ PID5=$!
 if [ "$AUDIO_CAPTURE_SOURCE" = "CREATE" ] ; then
   print_pending "Create dummy"
   $SSH_EXEC 'pactl load-module module-null-sink sink_name=RDPSINK rate=48000;
-    pactl update-sink-proplist RDPSINK device.description=RDPSINK;
-    pactl load-module module-loopback sink=RDPSINK;
-    pactl unload-module module-stream-restore;
-    pactl load-module module-stream-restore restore_device=false'
+  pactl update-sink-proplist RDPSINK device.description=RDPSINK;
+  pactl load-module module-loopback sink=RDPSINK;
+  pactl unload-module module-stream-restore;
+  pactl load-module module-stream-restore restore_device=false'
   $SSH_EXEC 'pactl set-default-sink $(pactl list sinks | grep RDPSINK -B3 | grep Sink\ \# | cut -f2 -d\#)'
-        AUDIO_CAPTURE_SOURCE='RDPSINK.monitor'
-        print_warning "Created audio capture source: $AUDIO_CAPTURE_SOURCE"
+  AUDIO_CAPTURE_SOURCE='RDPSINK.monitor'
+  print_warning "Created audio capture source: $AUDIO_CAPTURE_SOURCE"
   CREATED_AUDIO_CAPTURE_SOURCE=true
   echo
 fi
 if [ "$AUDIO_CAPTURE_SOURCE" = "AUTO" ] ; then
   print_pending "Guessing audio capture device"
-  AUDIO_CAPTURE_SOURCE=$($SSH_EXEC echo '$(pactl list sources short|grep monitor|awk "{print \$2}" | head -n 1))
+  AUDIO_CAPTURE_SOURCE=$($SSH_EXEC echo '$(pactl list sources short|grep monitor|awk "{print \$2}" | head -n 1)')
   print_warning "Guessed audio capture source: $AUDIO_CAPTURE_SOURCE"
   echo
 fi
 
 if [ "$AUDIO_CAPTURE_SOURCE" = "ALL" ] ; then
   print_pending "Guessing ALL audio capture devices"
-  AUDIO_CAPTURE_SOURCE=$($SSH_EXEC echo '$(pactl list sources short|grep monitor|awk "{print \$2}" | head -n 1))
+  AUDIO_CAPTURE_SOURCE=$($SSH_EXEC echo '$(pactl list sources short|grep monitor|awk "{print \$2}" | head -n 1)')
   print_warning "Guessed following audio capture sources: $AUDIO_CAPTURE_SOURCE"
   echo
 fi
